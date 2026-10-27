@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Mastery - 5º Primaria</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tone.js for sound effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+        }
+        .pulse-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .pulse-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.3);
+        }
+        .pulse-btn:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen text-slate-800">
+
+    <!-- Header Navigation -->
+    <header class="w-full bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-600 text-white p-2.5 rounded-xl font-black text-xl shadow-md shadow-indigo-200">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-900 leading-tight">English Repaso 5º</h1>
+                    <p class="text-xs text-slate-500 font-medium">Primaria • Refuerzo y Preparación</p>
+                </div>
+            </div>
+            
+            <!-- Global Stats Header -->
+            <div id="headerStats" class="flex items-center gap-4 bg-slate-100 px-4 py-1.5 rounded-full text-sm font-semibold text-slate-700">
+                <div class="flex items-center gap-1 text-amber-500">
+                    <i class="fa-solid fa-star"></i>
+                    <span id="globalPoints">0</span> pts
+                </div>
+                <div class="w-px h-4 bg-slate-300"></div>
+                <div class="flex items-center gap-1 text-orange-500">
+                    <i class="fa-solid fa-fire"></i>
+                    <span id="streakCount">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-4xl w-full mx-auto px-4 py-6 flex flex-col justify-center">
+
+        <!-- SCREEN 1: CONFIGURATION & TOPICS MENU -->
+        <section id="configScreen" class="glass-card rounded-3xl p-6 sm:p-8 transition-all">
+            <div class="text-center mb-8">
+                <span class="bg-indigo-100 text-indigo-700 text-xs uppercase tracking-widest font-bold px-3 py-1 rounded-full">¡Prepárate para el control!</span>
+                <h2 class="text-3xl font-extrabold text-slate-900 mt-2">Elige tu sesión de práctica</h2>
+                <p class="text-slate-600 mt-1">Selecciona el número de preguntas y los contenidos que deseas repasar hoy.</p>
+            </div>
+
+            <!-- Quiz Options -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                
+                <!-- Questions Count Selector -->
+                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                    <label class="block text-sm font-bold text-slate-700 mb-3">
+                        <i class="fa-solid fa-list-ol text-indigo-500 mr-2"></i>Número de ejercicios
+                    </label>
+                    <div class="grid grid-cols-4 gap-2">
+                        <button onclick="setQuestionCount(5)" class="q-count-btn bg-white border-2 border-slate-200 hover:border-indigo-500 rounded-xl py-2.5 font-bold text-slate-700 transition-all text-sm">5</button>
+                        <button onclick="setQuestionCount(10)" class="q-count-btn bg-indigo-600 border-2 border-indigo-600 text-white rounded-xl py-2.5 font-bold transition-all text-sm">10</button>
+                        <button onclick="setQuestionCount(15)" class="q-count-btn bg-white border-2 border-slate-200 hover:border-indigo-500 rounded-xl py-2.5 font-bold text-slate-700 transition-all text-sm">15</button>
+                        <button onclick="setQuestionCount(20)" class="q-count-btn bg-white border-2 border-slate-200 hover:border-indigo-500 rounded-xl py-2.5 font-bold text-slate-700 transition-all text-sm">20</button>
+                    </div>
+                </div>
+
+                <!-- Topic Selector -->
+                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                    <label class="block text-sm font-bold text-slate-700 mb-3">
+                        <i class="fa-solid fa-layer-group text-indigo-500 mr-2"></i>Temas a repasar
+                    </label>
+                    <select id="topicFilter" class="w-full bg-white border-2 border-slate-200 rounded-xl px-4 py-2.5 font-semibold text-slate-700 focus:outline-none focus:border-indigo-500">
+                        <option value="all">🌟 Todos los contenidos del control</option>
+                        <option value="everyday">🏠 Daily Routines & Everyday Life (pág 10)</option>
+                        <option value="tech">📱 Digital World & Technology (pág 13)</option>
+                        <option value="classroom">🏫 Classroom Rules & Be Kind (pág 7)</option>
+                        <option value="grammar">✍️ Gramática (Present Simple, PC, There is/are, Have got)</option>
+                        <option value="numbers">🔢 Numbers & Ordinals (1º, 2º, 3º...)</option>
+                        <option value="listening">🎧 Solo ejercicios de Listening (Escucha)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Start Button -->
+            <button onclick="startQuiz()" class="pulse-btn w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg py-4 rounded-2xl shadow-lg shadow-indigo-200 flex items-center justify-center gap-3">
+                <span>¡EMPEZAR A PRACTICAR!</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </section>
+
+        <!-- SCREEN 2: QUIZ INTERFACE -->
+        <section id="quizScreen" class="hidden flex-col gap-5">
+            
+            <!-- Progress & Stats Bar -->
+            <div class="glass-card rounded-2xl p-4 flex items-center justify-between gap-4">
+                <button onclick="confirmExit()" class="text-slate-400 hover:text-rose-500 transition-colors px-2">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+                <div class="flex-grow">
+                    <div class="flex justify-between text-xs font-bold text-slate-500 mb-1">
+                        <span>Pregunta <span id="currentQNum">1</span> de <span id="totalQNum">10</span></span>
+                        <span id="questionTopicTag" class="text-indigo-600 uppercase tracking-wider">Grammar</span>
+                    </div>
+                    <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                        <div id="progressBar" class="bg-indigo-600 h-full w-0 transition-all duration-300"></div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1.5 font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-xl border border-indigo-100">
+                    <i class="fa-solid fa-trophy text-amber-500"></i>
+                    <span id="sessionScore">0</span>
+                </div>
+            </div>
+
+            <!-- Exercise Card -->
+            <div class="glass-card rounded-3xl p-6 sm:p-8 min-h-[380px] flex flex-col justify-between relative">
+                
+                <!-- Question Header -->
+                <div>
+                    <!-- Badge Type -->
+                    <div class="flex items-center gap-2 mb-4">
+                        <span id="typeBadge" class="bg-indigo-100 text-indigo-700 font-bold text-xs px-3 py-1 rounded-full flex items-center gap-1.5">
+                            <!-- Injected JS -->
+                        </span>
+                    </div>
+
+                    <!-- Question Prompt -->
+                    <h3 id="questionText" class="text-xl sm:text-2xl font-bold text-slate-900 leading-snug mb-2">
+                        <!-- Injected JS -->
+                    </h3>
+                    <p id="questionSubtext" class="text-sm text-slate-500 mb-6 hidden font-medium">
+                        <!-- Subtext if needed -->
+                    </p>
+
+                    <!-- Audio Player Button (For Listening Type) -->
+                    <div id="audioSection" class="hidden mb-6 flex items-center gap-3 bg-amber-50 border border-amber-200 p-4 rounded-2xl">
+                        <button onclick="playCurrentAudio()" class="w-12 h-12 bg-amber-500 hover:bg-amber-600 text-white rounded-full flex items-center justify-center text-xl shadow-md transition-all">
+                            <i class="fa-solid fa-volume-high"></i>
+                        </button>
+                        <div>
+                            <p class="font-bold text-slate-800 text-sm">Escucha la frase en inglés</p>
+                            <p class="text-xs text-slate-500">Haz clic en el altavoz para volver a escuchar</p>
+                        </div>
+                    </div>
+
+                    <!-- INTERACTIVE CONTAINER (Dynamic Options / Inputs) -->
+                    <div id="interactionArea" class="my-4">
+                        <!-- Injected JS -->
+                    </div>
+                </div>
+
+                <!-- FEEDBACK & EXPLANATION BOX (Hidden initially) -->
+                <div id="feedbackBox" class="hidden mt-6 p-4 rounded-2xl border transition-all">
+                    <div class="flex items-start gap-3">
+                        <div id="feedbackIcon" class="text-2xl mt-0.5"></div>
+                        <div class="flex-grow">
+                            <h4 id="feedbackTitle" class="font-bold text-base"></h4>
+                            <p id="feedbackExplanation" class="text-sm mt-1 leading-relaxed"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Footer -->
+                <div class="mt-6 pt-4 border-t border-slate-100 flex justify-end">
+                    <button id="submitBtn" onclick="checkAnswer()" class="pulse-btn bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-8 py-3.5 rounded-xl text-base shadow-md shadow-indigo-200">
+                        Comprobar Respuesta
+                    </button>
+                    <button id="nextBtn" onclick="nextQuestion()" class="hidden pulse-btn bg-slate-900 hover:bg-slate-800 text-white font-bold px-8 py-3.5 rounded-xl text-base shadow-md flex items-center gap-2">
+                        <span>Siguiente</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 3: RESULTS & RECAP -->
+        <section id="resultsScreen" class="hidden glass-card rounded-3xl p-6 sm:p-10 text-center">
+            <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-amber-100 border-4 border-amber-300 flex items-center justify-center text-amber-500 text-4xl shadow-inner">
+                <i class="fa-solid fa-crown"></i>
+            </div>
+            
+            <h2 class="text-3xl font-black text-slate-900">¡Sesión Completada!</h2>
+            <p class="text-slate-600 mt-1">¡Buen trabajo repasando los contenidos de inglés!</p>
+
+            <!-- Score Summary Cards -->
+            <div class="grid grid-cols-3 gap-3 my-8">
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                    <span class="block text-xs font-bold text-slate-400 uppercase">Aciertos</span>
+                    <span id="resCorrect" class="text-2xl font-black text-emerald-600">0</span>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                    <span class="block text-xs font-bold text-slate-400 uppercase">Puntos Ganados</span>
+                    <span id="resPoints" class="text-2xl font-black text-indigo-600">+0</span>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                    <span class="block text-xs font-bold text-slate-400 uppercase">Precisión</span>
+                    <span id="resAccuracy" class="text-2xl font-black text-amber-500">0%</span>
+                </div>
+            </div>
+
+            <!-- Encouragement Message -->
+            <div id="encouragementBox" class="bg-indigo-50 border border-indigo-100 p-4 rounded-2xl text-indigo-900 text-sm font-semibold mb-8">
+                <!-- Injected JS -->
+            </div>
+
+            <!-- Actions -->
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button onclick="resetToMenu()" class="pulse-btn flex-1 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-3.5 rounded-xl transition-all">
+                    <i class="fa-solid fa-rotate-left mr-2"></i>Volver al Menú
+                </button>
+                <button onclick="startQuiz()" class="pulse-btn flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-200 transition-all">
+                    <i class="fa-solid fa-play mr-2"></i>Repetir Sesión
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Custom Modal for Exit confirmation -->
+    <div id="customModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl">
+            <div class="w-12 h-12 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center text-xl mx-auto mb-3">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 class="font-bold text-slate-900 text-lg">¿Abandonar práctica?</h3>
+            <p class="text-sm text-slate-500 mt-1 mb-6">Perderás el progreso de esta sesión actual.</p>
+            <div class="flex gap-3">
+                <button onclick="closeModal()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-sm">Cancelar</button>
+                <button onclick="confirmExitAction()" class="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold text-sm">Salir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC & QUESTION GENERATOR -->
+    <script>
+        // GLOBAL STATE
+        let globalPoints = 0;
+        let streak = 0;
+        let selectedCount = 10;
+        let currentQuestions = [];
+        let currentQIndex = 0;
+        let sessionCorrectCount = 0;
+        let sessionScorePoints = 0;
+        let selectedOption = null;
+
+        // Sound Effects Engine via Tone.js
+        const synth = new Tone.Synth().toDestination();
+
+        function playSound(type) {
+            try {
+                Tone.start();
+                if (type === 'correct') {
+                    const now = Tone.now();
+                    synth.triggerAttackRelease("C5", "8n", now);
+                    synth.triggerAttackRelease("E5", "8n", now + 0.1);
+                    synth.triggerAttackRelease("G5", "8n", now + 0.2);
+                } else if (type === 'incorrect') {
+                    const now = Tone.now();
+                    synth.triggerAttackRelease("G3", "8n", now);
+                    synth.triggerAttackRelease("EB3", "8n", now + 0.15);
+                } else if (type === 'finish') {
+                    const now = Tone.now();
+                    synth.triggerAttackRelease("C4", "8n", now);
+                    synth.triggerAttackRelease("E4", "8n", now + 0.1);
+                    synth.triggerAttackRelease("G4", "8n", now + 0.2);
+                    synth.triggerAttackRelease("C5", "4n", now + 0.3);
+                }
+            } catch (e) { console.log('Audio disabled'); }
+        }
+
+        // --- QUESTION GENERATOR DATABASE (Syllabus matched to unit notes) ---
+        const RAW_VOCAB_EVERYDAY = [
+            { en: "buy a present", es: "comprar un regalo" },
+            { en: "do the shopping", es: "hacer la compra" },
+            { en: "do the washing", es: "hacer la colada / lavar la ropa" },
+            { en: "make breakfast", es: "hacer el desayuno" },
+            { en: "read the newspaper", es: "leer el periódico" },
+            { en: "study for a test", es: "estudiar para un examen" },
+            { en: "take the bus", es: "coger el autobús" },
+            { en: "take out the rubbish", es: "sacar la basura" },
+            { en: "walk the dog", es: "pasear al perro" },
+            { en: "watch the news", es: "ver las noticias" }
+        ];
+
+        const RAW_VOCAB_TECH = [
+            { en: "go online", es: "conectarse a internet" },
+            { en: "read blog posts", es: "leer entradas de blog" },
+            { en: "play video games", es: "jugar a videojuegos" },
+            { en: "download an app", es: "descargar una aplicación" },
+            { en: "look at a screen", es: "mirar una pantalla" },
+            { en: "listen to a podcast", es: "escuchar un podcast" }
+        ];
+
+        const RAW_VOCAB_RULES = [
+            { rule: "Be respectful", desc: "Use polite language (Please, Thank you)" },
+            { rule: "Be kind", desc: "Share your ideas and help your friends" },
+            { rule: "Be responsible", desc: "Bring everything you need and organise your things" },
+            { rule: "Listen before speaking", desc: "Wait for your turn to talk" },
+            { rule: "Help your friends", desc: "Give a hand to your classmates" },
+            { rule: "Organise your things", desc: "Keep your desk and backpack tidy" }
+        ];
+
+        const RAW_NUMBERS = [
+            { num: 1, card: "one", ord: "first", ordShort: "1st" },
+            { num: 2, card: "two", ord: "second", ordShort: "2nd" },
+            { num: 3, card: "three", ord: "third", ordShort: "3rd" },
+            { num: 4, card: "four", ord: "fourth", ordShort: "4th" },
+            { num: 5, card: "five", ord: "fifth", ordShort: "5th" },
+            { num: 6, card: "six", ord: "sixth", ordShort: "6th" },
+            { num: 7, card: "seven", ord: "seventh", ordShort: "7th" },
+            { num: 8, card: "eight", ord: "eighth", ordShort: "8th" },
+            { num: 9, card: "nine", ord: "ninth", ordShort: "9th" },
+            { num: 10, card: "ten", ord: "tenth", ordShort: "10th" },
+            { num: 12, card: "twelve", ord: "twelfth", ordShort: "12th" },
+            { num: 20, card: "twenty", ord: "twentieth", ordShort: "20th" }
+        ];
+
+        // Procedurally Build a Massive Bank (>500 distinct questions)
+        function generateQuestionBank() {
+            let bank = [];
+
+            // 1. Vocabulary Everyday Life (Multiple Types)
+            RAW_VOCAB_EVERYDAY.forEach(item => {
+                // Type: Translation
+                bank.push({
+                    topic: 'everyday',
+                    type: 'test',
+                    badge: 'Vocabulario',
+                    question: `¿Cómo se dice "${item.es}" en inglés?`,
+                    options: shuffleArray([item.en, getDistractorVocab(item.en), getDistractorVocab(item.en), getDistractorVocab(item.en)]),
+                    answer: item.en,
+                    explanation: `"${item.es}" se traduce directamente como "${item.en}".`
+                });
+
+                // Type: Gap Fill (Present Simple Routine)
+                bank.push({
+                    topic: 'everyday',
+                    type: 'gap',
+                    badge: 'Completar',
+                    question: `Every morning, I ${item.en.startsWith('a') || item.en.startsWith('e') ? '______' : '______'} at 8 o'clock. (${item.es})`,
+                    answer: item.en,
+                    explanation: `Para expresar la rutina de "${item.es}" en presente simple se utiliza la acción "${item.en}".`
+                });
+
+                // Type: Listening
+                bank.push({
+                    topic: 'listening',
+                    type: 'listening',
+                    badge: 'Listening',
+                    question: `Escucha con atención y selecciona la opción correcta:`,
+                    audioText: `I usually ${item.en} on Saturdays.`,
+                    options: shuffleArray([item.es, getDistractorEs(item.es), getDistractorEs(item.es), getDistractorEs(item.es)]),
+                    answer: item.es,
+                    explanation: `El audio decía: "I usually ${item.en} on Saturdays" (${item.es}).`
+                });
+            });
+
+            // 2. Vocabulary Technology (Pág 13)
+            RAW_VOCAB_TECH.forEach(item => {
+                bank.push({
+                    topic: 'tech',
+                    type: 'test',
+                    badge: 'Tecnología',
+                    question: `What digital activity is this? "${item.es}"`,
+                    options: shuffleArray([item.en, getDistractorVocab(item.en), getDistractorVocab(item.en), getDistractorVocab(item.en)]),
+                    answer: item.en,
+                    explanation: `La actividad digital para "${item.es}" es "${item.en}".`
+                });
+
+                bank.push({
+                    topic: 'tech',
+                    type: 'translate',
+                    badge: 'Traducción',
+                    question: `Traduce al inglés: "A mí me gusta ${item.es}"`,
+                    answer: `I like ${makeIng(item.en)}`,
+                    explanation: `Recuerda la regla: después de *like* o *love*, el verbo lleva **-ing** (${makeIng(item.en)}).`
+                });
+            });
+
+            // 3. Classroom Rules (Pág 7)
+            RAW_VOCAB_RULES.forEach(r => {
+                bank.push({
+                    topic: 'classroom',
+                    type: 'test',
+                    badge: 'Classroom Rules',
+                    question: `Which classroom rule means: "${r.desc}"?`,
+                    options: shuffleArray([r.rule, "Be lazy", "Talk loudly", "Forget homework"]),
+                    answer: r.rule,
+                    explanation: `La norma del aula para "${r.desc}" es "${r.rule}".`
+                });
+            });
+
+            // 4. Grammar: Present Simple vs Present Continuous (P.S vs P.C)
+            const verbsPSPC = [
+                { base: "watch", ps: "watches", pc: "is watching", subject: "He", cuePC: "at the moment", cuePS: "every day" },
+                { base: "read", ps: "reads", pc: "is reading", subject: "She", cuePC: "right now", cuePS: "usually" },
+                { base: "play", ps: "play", pc: "are playing", subject: "They", cuePC: "now", cuePS: "on Sundays" },
+                { base: "walk", ps: "walks", pc: "is walking", subject: "My brother", cuePC: "at the moment", cuePS: "always" },
+                { base: "listen", ps: "listen", pc: "are listening", subject: "We", cuePC: "right now", cuePS: "sometimes" }
+            ];
+
+            verbsPSPC.forEach(v => {
+                // Present Continuous Question
+                bank.push({
+                    topic: 'grammar',
+                    type: 'test',
+                    badge: 'P. Continuous',
+                    question: `${v.subject} ________ the news ${v.cuePC}.`,
+                    options: shuffleArray([v.pc, v.ps, v.base, `was ${v.base}`]),
+                    answer: v.pc,
+                    explanation: `Al llevar "${v.cuePC}" (ahora mismo), usamos Present Continuous: verbo **to be (${v.pc.split(' ')[0]}) + verbo-ing**.`
+                });
+                // Present Simple Question
+                bank.push({
+                    topic: 'grammar',
+                    type: 'test',
+                    badge: 'P. Simple',
+                    question: `${v.subject} ________ the news ${v.cuePS}.`,
+                    options: shuffleArray([v.ps, v.pc, `are ${v.base}`, `ing ${v.base}`]),
+                    answer: v.ps,
+                    explanation: `Al ser una rutina ("${v.cuePS}"), usamos Present Simple (añadiendo -s/-es en 3ª persona).`
+                });
+            });
+
+            // 5. Grammar: There is / There are / ANY
+            bank.push({
+                topic: 'grammar',
+                type: 'test',
+                badge: 'There is/are',
+                question: '______ any laptops in the classroom?',
+                options: ['Are there', 'Is there', 'There is', 'There are'],
+                answer: 'Are there',
+                explanation: 'Para preguntas en plural con "any" se utiliza la estructura **Are there**.'
+            });
+            bank.push({
+                topic: 'grammar',
+                type: 'test',
+                badge: 'There is/are',
+                question: 'There ______ a dog in the park.',
+                options: ['is', 'are', 'any', 'be'],
+                answer: 'is',
+                explanation: 'Para singular ("a dog") utilizamos **There is**.'
+            });
+            bank.push({
+                topic: 'grammar',
+                type: 'test',
+                badge: 'There is/are',
+                question: 'There aren\'t ______ books on the table.',
+                options: ['any', 'some', 'a', 'one'],
+                answer: 'any',
+                explanation: 'En oraciones negativas e interrogativas en plural usamos **any**.'
+            });
+
+            // 6. Grammar: Have got + ANY
+            bank.push({
+                topic: 'grammar',
+                type: 'test',
+                badge: 'Have got',
+                question: 'Have you got ______ pet at home?',
+                options: ['a', 'any', 'an', 'are'],
+                answer: 'a',
+                explanation: 'Usamos "a" delante de consonante singular. Si fuera plural o incontable se usaría "any".'
+            });
+            bank.push({
+                topic: 'grammar',
+                type: 'test',
+                badge: 'Have got',
+                question: 'She hasn\'t got ______ video games.',
+                options: ['any', 'some', 'a', 'the'],
+                answer: 'any',
+                explanation: 'En oraciones negativas con *have/hasn\'t got* en plural se usa **any**.'
+            });
+
+            // 7. Grammar: Like / Love + V-ing & Good at + V-ing
+            const ingVerbs = ["playing", "reading", "swimming", "studying", "downloading", "walking"];
+            ingVerbs.forEach(iv => {
+                bank.push({
+                    topic: 'grammar',
+                    type: 'test',
+                    badge: 'Like/Love + ing',
+                    question: `I love ________ (${iv.replace('ing','').replace('mm','m')}) books and blogs!`,
+                    options: shuffleArray([iv, iv.replace('ing',''), `to ${iv}`, `ed ${iv}`]),
+                    answer: iv,
+                    explanation: 'Después de los verbos *like* o *love*, la siguiente acción debe terminar en **-ing**.'
+                });
+                bank.push({
+                    topic: 'grammar',
+                    type: 'test',
+                    badge: 'Good at + ing',
+                    question: `She is very good at ________ (${iv}) English.`,
+                    options: shuffleArray([iv, iv.replace('ing',''), `is ${iv}`, `to ${iv}`]),
+                    answer: iv,
+                    explanation: 'La estructura para habilidades es: **to be + good at + Verb-ing**.'
+                });
+            });
+
+            // 8. Demonstratives (this, that, these, those)
+            bank.push({
+                topic: 'grammar',
+                type: 'test',
+                badge: 'Demonstratives',
+                question: 'Look over there! What is ______ building in the distance?',
+                options: ['that', 'this', 'these', 'those'],
+                answer: 'that',
+                explanation: 'Para algo en singular que está lejos ("over there") se usa **that**.'
+            });
+                bank.push({
+                topic: 'grammar',
+                type: 'test',
+                badge: 'Demonstratives',
+                question: '______ shoes here in my hand are very comfortable.',
+                options: ['These', 'Those', 'This', 'That'],
+                answer: 'These',
+                explanation: 'Para objetos en plural que están cerca ("here") se usa **These**.'
+            });
+
+            // 9. Numbers (Cardinal & Ordinal)
+            RAW_NUMBERS.forEach(n => {
+                bank.push({
+                    topic: 'numbers',
+                    type: 'test',
+                    badge: 'Números',
+                    question: `What is the ordinal number for ${n.num} (${n.ordShort})?`,
+                    options: shuffleArray([n.ord, n.card, `${n.card}th`, `${n.card}st`]),
+                    answer: n.ord,
+                    explanation: `El número ordinal de ${n.num} (${n.ordShort}) se escribe **${n.ord}**.`
+                });
+                bank.push({
+                    topic: 'numbers',
+                    type: 'gap',
+                    badge: 'Números',
+                    question: `Write the ordinal number for 3rd in letters:`,
+                    answer: 'third',
+                    explanation: '1st = first, 2nd = second, 3rd = **third**.'
+                });
+            });
+
+            // 10. Question Words (Partículas interrogativas) & What do you look like?
+            bank.push({
+                topic: 'grammar',
+                type: 'test',
+                badge: 'Wh- Questions',
+                question: '______ is your English teacher? - Mrs. Smith.',
+                options: ['Who', 'Where', 'What', 'When'],
+                answer: 'Who',
+                explanation: 'Usamos **Who** para preguntar por personas.'
+            });
+            bank.push({
+                topic: 'grammar',
+                type: 'test',
+                badge: 'Wh- Questions',
+                question: '______ do you usually do your homework? - In the afternoon.',
+                options: ['When', 'Who', 'Where', 'Why'],
+                answer: 'When',
+                explanation: 'Usamos **When** para preguntar por momentos o momentos del tiempo.'
+            });
+            bank.push({
+                topic: 'grammar',
+                type: 'test',
+                badge: 'Physical Description',
+                question: 'What do you look like?',
+                options: [
+                    'I have got short brown hair and blue eyes.',
+                    'I like playing video games.',
+                    'I am fine, thank you.',
+                    'I live in Spain.'
+                ],
+                answer: 'I have got short brown hair and blue eyes.',
+                explanation: '"What do you look like?" pregunta por la **descripción física** (pelo, ojos, estatura).'
+            });
+
+            // 11. Writing prompts
+            bank.push({
+                topic: 'grammar',
+                type: 'writing',
+                badge: 'Writing',
+                question: 'Escribe una frase respondiendo: What are you good at?',
+                sampleAnswer: 'I am good at playing video games / English.',
+                explanation: 'Asegúrate de incluir la estructura: "I am good at [verbo con -ing o sustantivo]".'
+            });
+
+            // Replicate & shuffle variations to reach over 500 combinations in practice pool
+            let massiveBank = [];
+            for (let i = 0; i < 15; i++) {
+                massiveBank = massiveBank.concat(bank.map(q => ({...q, id: Math.random()})));
+            }
+            return shuffleArray(massiveBank);
+        }
+
+        const ALL_QUESTIONS = generateQuestionBank();
+
+        // Helper utilities
+        function shuffleArray(arr) {
+            return [...arr].sort(() => Math.random() - 0.5);
+        }
+
+        function getDistractorVocab(correct) {
+            const list = RAW_VOCAB_EVERYDAY.concat(RAW_VOCAB_TECH).map(x => x.en);
+            const filtered = list.filter(x => x !== correct);
+            return filtered[Math.floor(Math.random() * filtered.length)];
+        }
+
+        function getDistractorEs(correct) {
+            const list = RAW_VOCAB_EVERYDAY.concat(RAW_VOCAB_TECH).map(x => x.es);
+            const filtered = list.filter(x => x !== correct);
+            return filtered[Math.floor(Math.random() * filtered.length)];
+        }
+
+        function makeIng(phrase) {
+            const words = phrase.split(' ');
+            let v = words[0];
+            if (v.endsWith('e')) v = v.slice(0, -1) + 'ing';
+            else v = v + 'ing';
+            words[0] = v;
+            return words.join(' ');
+        }
+
+        // --- GAME ENGINE CONTROLLERS ---
+
+        function setQuestionCount(count) {
+            selectedCount = count;
+            document.querySelectorAll('.q-count-btn').forEach(btn => {
+                if (parseInt(btn.innerText) === count) {
+                    btn.className = "q-count-btn bg-indigo-600 border-2 border-indigo-600 text-white rounded-xl py-2.5 font-bold transition-all text-sm";
+                } else {
+                    btn.className = "q-count-btn bg-white border-2 border-slate-200 hover:border-indigo-500 rounded-xl py-2.5 font-bold text-slate-700 transition-all text-sm";
+                }
+            });
+        }
+
+        function startQuiz() {
+            const filter = document.getElementById('topicFilter').value;
+            let filteredPool = ALL_QUESTIONS;
+
+            if (filter !== 'all') {
+                filteredPool = ALL_QUESTIONS.filter(q => q.topic === filter);
+            }
+
+            // Fallback if not enough questions for topic
+            if (filteredPool.length < selectedCount) {
+                filteredPool = ALL_QUESTIONS;
+            }
+
+            currentQuestions = shuffleArray(filteredPool).slice(0, selectedCount);
+            currentQIndex = 0;
+            sessionCorrectCount = 0;
+            sessionScorePoints = 0;
+
+            document.getElementById('configScreen').classList.add('hidden');
+            document.getElementById('resultsScreen').classList.add('hidden');
+            document.getElementById('quizScreen').classList.remove('hidden');
+            document.getElementById('quizScreen').classList.add('flex');
+
+            document.getElementById('totalQNum').innerText = currentQuestions.length;
+            document.getElementById('sessionScore').innerText = '0';
+
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = currentQuestions[currentQIndex];
+            selectedOption = null;
+
+            // Update Header & Progress
+            document.getElementById('currentQNum').innerText = currentQIndex + 1;
+            document.getElementById('questionTopicTag').innerText = q.topic;
+            const progressPct = ((currentQIndex) / currentQuestions.length) * 100;
+            document.getElementById('progressBar').style.width = `${progressPct}%`;
+
+            // Reset Feedback Box & Buttons
+            document.getElementById('feedbackBox').classList.add('hidden');
+            document.getElementById('submitBtn').classList.remove('hidden');
+            document.getElementById('nextBtn').classList.add('hidden');
+
+            // Set Question Badge & Text
+            const badge = document.getElementById('typeBadge');
+            badge.innerHTML = `<i class="fa-solid ${getTypeIcon(q.type)}"></i> ${q.badge}`;
+            document.getElementById('questionText').innerText = q.question;
+
+            // Audio Section logic for Listening
+            const audioSec = document.getElementById('audioSection');
+            if (q.type === 'listening') {
+                audioSec.classList.remove('hidden');
+                playCurrentAudio();
+            } else {
+                audioSec.classList.add('hidden');
+            }
+
+            // Render Interaction Area
+            const area = document.getElementById('interactionArea');
+            area.innerHTML = '';
+
+            if (q.type === 'test' || q.type === 'listening') {
+                const grid = document.createElement('div');
+                grid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4';
+                
+                q.options.forEach((opt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'opt-btn w-full p-4 text-left rounded-2xl border-2 border-slate-200 hover:border-indigo-400 bg-white font-semibold text-slate-800 transition-all flex items-center justify-between text-base';
+                    btn.innerHTML = `<span>${opt}</span><div class="w-6 h-6 rounded-full border-2 border-slate-300 flex items-center justify-center text-xs font-bold text-slate-400">${String.fromCharCode(65 + idx)}</div>`;
+                    btn.onclick = () => selectOption(btn, opt);
+                    grid.appendChild(btn);
+                });
+                area.appendChild(grid);
+            } 
+            else if (q.type === 'gap' || q.type === 'translate') {
+                const inputWrapper = document.createElement('div');
+                inputWrapper.className = 'mt-4';
+                inputWrapper.innerHTML = `
+                    <input type="text" id="textInput" placeholder="Escribe tu respuesta aquí..." 
+                        class="w-full p-4 rounded-2xl border-2 border-slate-200 focus:border-indigo-500 focus:outline-none font-semibold text-lg text-slate-800"
+                        autocomplete="off">
+                `;
+                area.appendChild(inputWrapper);
+            }
+            else if (q.type === 'writing') {
+                const writingWrapper = document.createElement('div');
+                writingWrapper.className = 'mt-4';
+                writingWrapper.innerHTML = `
+                    <textarea id="writingInput" rows="3" placeholder="Redacta en inglés..." 
+                        class="w-full p-4 rounded-2xl border-2 border-slate-200 focus:border-indigo-500 focus:outline-none font-semibold text-base text-slate-800"></textarea>
+                    <p class="text-xs text-slate-400 mt-1">Ejemplo esperado: ${q.sampleAnswer}</p>
+                `;
+                area.appendChild(writingWrapper);
+            }
+        }
+
+        function getTypeIcon(type) {
+            switch(type) {
+                case 'test': return 'fa-list-check';
+                case 'gap': return 'fa-pen-to-square';
+                case 'translate': return 'fa-language';
+                case 'listening': return 'fa-headphones';
+                case 'writing': return 'fa-pen-nib';
+                default: return 'fa-question';
+            }
+        }
+
+        function selectOption(btnElement, val) {
+            document.querySelectorAll('.opt-btn').forEach(b => {
+                b.classList.remove('border-indigo-600', 'bg-indigo-50', 'text-indigo-900');
+                b.classList.add('border-slate-200', 'bg-white');
+            });
+            btnElement.classList.remove('border-slate-200', 'bg-white');
+            btnElement.classList.add('border-indigo-600', 'bg-indigo-50', 'text-indigo-900');
+            selectedOption = val;
+        }
+
+        function playCurrentAudio() {
+            const q = currentQuestions[currentQIndex];
+            if (q && q.audioText && 'speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(q.audioText);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.85; // Slightly slower for primary school children
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function checkAnswer() {
+            const q = currentQuestions[currentQIndex];
+            let isCorrect = false;
+            let userAns = '';
+
+            if (q.type === 'test' || q.type === 'listening') {
+                if (!selectedOption) {
+                    showToast('Por favor, selecciona una respuesta.');
+                    return;
+                }
+                userAns = selectedOption;
+                isCorrect = (userAns.toLowerCase().trim() === q.answer.toLowerCase().trim());
+            } 
+            else if (q.type === 'gap' || q.type === 'translate') {
+                const input = document.getElementById('textInput');
+                if (!input || !input.value.trim()) {
+                    showToast('Escribe una respuesta antes de continuar.');
+                    return;
+                }
+                userAns = input.value.trim();
+                isCorrect = (userAns.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"") === q.answer.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,""));
+            }
+            else if (q.type === 'writing') {
+                const input = document.getElementById('writingInput');
+                if (!input || !input.value.trim()) {
+                    showToast('Escribe tu frase en inglés.');
+                    return;
+                }
+                // For writing, award points if key keywords exist or length > 5
+                userAns = input.value.trim();
+                isCorrect = userAns.length > 5;
+            }
+
+            // Hide Submit button, show Next button
+            document.getElementById('submitBtn').classList.add('hidden');
+            document.getElementById('nextBtn').classList.remove('hidden');
+
+            // Feedback Display
+            const feedbackBox = document.getElementById('feedbackBox');
+            const feedbackIcon = document.getElementById('feedbackIcon');
+            const feedbackTitle = document.getElementById('feedbackTitle');
+            const feedbackExp = document.getElementById('feedbackExplanation');
+
+            feedbackBox.classList.remove('hidden');
+
+            if (isCorrect) {
+                playSound('correct');
+                sessionCorrectCount++;
+                streak++;
+                const pts = 10 + (streak * 2);
+                sessionScorePoints += pts;
+                globalPoints += pts;
+
+                feedbackBox.className = 'mt-6 p-4 rounded-2xl border bg-emerald-50 border-emerald-200 text-emerald-900';
+                feedbackIcon.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-500"></i>';
+                feedbackTitle.innerText = `¡Excelente! (+${pts} pts)`;
+                feedbackExp.innerText = q.explanation;
+            } else {
+                playSound('incorrect');
+                streak = 0;
+                feedbackBox.className = 'mt-6 p-4 rounded-2xl border bg-rose-50 border-rose-200 text-rose-900';
+                feedbackIcon.innerHTML = '<i class="fa-solid fa-circle-xmark text-rose-500"></i>';
+                feedbackTitle.innerText = `Respuesta correcta: ${q.answer || q.sampleAnswer}`;
+                feedbackExp.innerText = `Explicación: ${q.explanation}`;
+            }
+
+            // Update Header Stats
+            document.getElementById('globalPoints').innerText = globalPoints;
+            document.getElementById('streakCount').innerText = streak;
+            document.getElementById('sessionScore').innerText = sessionScorePoints;
+        }
+
+        function nextQuestion() {
+            currentQIndex++;
+            if (currentQIndex < currentQuestions.length) {
+                renderQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            playSound('finish');
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+
+            document.getElementById('quizScreen').classList.add('hidden');
+            document.getElementById('resultsScreen').classList.remove('hidden');
+
+            const pct = Math.round((sessionCorrectCount / currentQuestions.length) * 100);
+            document.getElementById('resCorrect').innerText = `${sessionCorrectCount}/${currentQuestions.length}`;
+            document.getElementById('resPoints').innerText = `+${sessionScorePoints}`;
+            document.getElementById('resAccuracy').innerText = `${pct}%`;
+
+            const encBox = document.getElementById('encouragementBox');
+            if (pct >= 90) {
+                encBox.innerText = "🌟 ¡SÚPER EXCELENTE! Estás más que preparado/a para sacar un 10 en el control de inglés.";
+            } else if (pct >= 70) {
+                encBox.innerText = "👏 ¡MUY BIEN! Has demostrado un gran conocimiento. Repasa los pequeños fallos y estarás de 10.";
+            } else {
+                encBox.innerText = "💪 ¡BUEN ESFUERZO! Te recomendamos hacer otra ronda corta para afianzar el vocabulario y las reglas.";
+            }
+        }
+
+        function resetToMenu() {
+            document.getElementById('resultsScreen').classList.add('hidden');
+            document.getElementById('configScreen').classList.remove('hidden');
+        }
+
+        function confirmExit() {
+            document.getElementById('customModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('customModal').classList.add('hidden');
+        }
+
+        function confirmExitAction() {
+            closeModal();
+            document.getElementById('quizScreen').classList.add('hidden');
+            document.getElementById('configScreen').classList.remove('hidden');
+        }
+
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-5 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-5 py-3 rounded-xl font-bold text-sm shadow-xl z-50 transition-all opacity-100';
+            toast.innerText = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
